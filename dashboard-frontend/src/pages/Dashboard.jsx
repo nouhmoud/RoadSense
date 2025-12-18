@@ -126,10 +126,8 @@ export default function Dashboard() {
                         animate={{ opacity: 1, x: 0 }}
                         className="space-y-1"
                     >
-                        <div className="flex items-center gap-2">
-                            <span className="p-2 bg-primary-500 rounded-lg text-white shadow-lg shadow-primary-500/20">
-                                <Sparkles size={20} />
-                            </span>
+                        <div className="flex items-center gap-4">
+                            <img src="/favicon.png" alt="RoadSense Logo" className="w-12 h-12 rounded-2xl shadow-xl shadow-primary-500/20" />
                             <h1 className="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400">
                                 RoadSense
                             </h1>
