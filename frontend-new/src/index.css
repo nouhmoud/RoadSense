@@ -1,0 +1,22 @@
+@import "tailwindcss";
+
+@theme {
+    --color-primary-50: #f0f9ff;
+    --color-primary-100: #e0f2fe;
+    --color-primary-500: #0ea5e9;
+    --color-primary-600: #0284c7;
+    --color-primary-700: #0369a1;
+}
+
+body {
+    @apply bg-gray-50 text-gray-900 antialiased;
+}
+
+/* Glassmorphism utilities */
+.glass {
+    @apply bg-white/70 backdrop-blur-lg border border-white/20 shadow-xl;
+}
+
+.glass-dark {
+    @apply bg-gray-900/80 backdrop-blur-md border border-gray-700/50 shadow-xl;
+}

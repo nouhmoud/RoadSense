@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+venv_new/
+ENV/
+env/
+.env
+*.pyd
+*.dll
+*.so
+*.exe
+
+# Node
+node_modules/
+dist/
+.eslintcache
+build/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
+Desktop.ini
+
+# Project specific
+backend/.venv/
+backend/venv/
+backend/venv_new/
+frontend-new/node_modules/
+priority-service/node_modules/
+priority-service/dist/
+export-service/.venv/
+export-service/venv/
+

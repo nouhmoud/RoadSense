@@ -1,0 +1,13 @@
+fastapi
+uvicorn[standard]
+ultralytics
+pillow
+python-multipart
+numpy
+SQLAlchemy>=2.0.0
+psycopg2-binary # Pilote pour PostgreSQL/PostGIS
+geopandas
+shapely
+scikit-learn
+xgboost
+pandas
