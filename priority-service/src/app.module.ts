@@ -10,13 +10,13 @@ import { PriorityModule } from './priority/priority.module';
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost',
-      port: 5433,
-      username: 'postgres',
-      password: 'postgres',
-      database: 'geodb',
+      host: process.env.POSTGRES_HOST || 'localhost',
+      port: parseInt(process.env.POSTGRES_PORT || '5433'),
+      username: process.env.POSTGRES_USER || 'postgres',
+      password: process.env.POSTGRES_PASSWORD || 'postgres',
+      database: process.env.POSTGRES_DB || 'geodb',
       entities: [RoadSegment, RoadAnomaly],
-      synchronize: false, // SAFE MODE: Prevent TypeORM from altering existing tables
+      synchronize: false,
     }),
     PriorityModule,
   ],

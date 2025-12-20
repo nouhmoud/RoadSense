@@ -1,0 +1,119 @@
+services:
+  # --- Database (PostGIS) ---
+  db:
+    image: postgis/postgis:15-3.3
+    container_name: roadsense-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-geodb}
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # --- Object Storage (MinIO) ---
+  minio:
+    image: minio/minio
+    container_name: roadsense-minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+    command: server /data --console-address ":9001"
+    volumes:
+      - miniodata:/data
+
+  # --- Microservices ---
+  detection-service:
+    build: ./detection-service
+    container_name: roadsense-detection
+    ports:
+      - "8088:8088"
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      MINIO_ENDPOINT: minio:9000
+    depends_on:
+      db:
+        condition: service_healthy
+      minio:
+        condition: service_started
+
+  georef-service:
+    build: ./georef-service
+    container_name: roadsense-georef
+    ports:
+      - "8081:8081"
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+    depends_on:
+      db:
+        condition: service_healthy
+
+  severity-service:
+    build: ./severity-service
+    container_name: roadsense-severity
+    ports:
+      - "8083:8083"
+    depends_on:
+      - detection-service
+
+  dashboard-backend:
+    build: ./dashboard-backend
+    container_name: roadsense-dashboard-be
+    ports:
+      - "8084:8084"
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+    depends_on:
+      db:
+        condition: service_healthy
+
+  export-service:
+    build: ./export-service
+    container_name: roadsense-export
+    ports:
+      - "8082:8082"
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+    depends_on:
+      db:
+        condition: service_healthy
+
+  priority-service:
+    build: ./priority-service
+    container_name: roadsense-priority
+    ports:
+      - "3000:3000"
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # --- Frontend ---
+  dashboard-frontend:
+    build: ./dashboard-frontend
+    container_name: roadsense-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - dashboard-backend
+      - detection-service
+      - georef-service
+
+volumes:
+  pgdata:
+  miniodata:

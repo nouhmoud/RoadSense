@@ -38,10 +38,26 @@ export class PriorityService {
     }
 
     async calculatePriorities() {
-        // 1. Fetch all segments and anomalies
-        // In a real app, we might join these in SQL, but for clarity/simplicity we'll fetch and process.
-        const segments = await this.segmentsRepository.find();
+        // 1. Fetch all anomalies to see which segments are actually present
         const anomalies = await this.anomaliesRepository.find();
+
+        // 2. Ensure all referenced segments exist in the road_segments table
+        const uniqueSegmentIds = [...new Set(anomalies.map(a => a.roadSegmentId))];
+        for (const segmentId of uniqueSegmentIds) {
+            const existing = await this.segmentsRepository.findOne({ where: { id: segmentId } });
+            if (!existing) {
+                // Register new segment with default values
+                const newSegment = this.segmentsRepository.create({
+                    id: segmentId,
+                    trafficScore: 50, // Default mid-level traffic
+                    importance: 2     // Default importance
+                });
+                await this.segmentsRepository.save(newSegment);
+            }
+        }
+
+        // 3. Fetch all segments (now including newly registered ones)
+        const segments = await this.segmentsRepository.find();
 
         // Map anomalies to segments
         const anomaliesBySegment: Record<string, RoadAnomaly[]> = {};
@@ -52,21 +68,21 @@ export class PriorityService {
             anomaliesBySegment[a.roadSegmentId].push(a);
         });
 
-        // 2. Calculate Score
+        // 4. Calculate Score
         const results = segments.map((segment) => {
             const segmentAnomalies = anomaliesBySegment[segment.id] || [];
-
-            // Calculate Average Severity (Confidence as a proxy for severity if real severity score is missing, 
-            // or assume we have it. For now let's use a mock 'severity' from detected anomalies 
-            // but strictly speaking we only have 'confidence' and 'class_name' in the entity I defined.
-            // Let's assume class_name implies severity or just use simple counts for now).
+            if (segmentAnomalies.length === 0 && !['Avenue Mohammed V', 'Boulevard des FAR', 'Rue de la Gare'].includes(segment.id)) {
+                return null; // Don't show empty auto-generated segments
+            }
 
             // Better: Let's assume severe classes weigh more.
             let totalSeverity = 0;
             segmentAnomalies.forEach(a => {
                 let weight = 1;
-                if (a.className === 'Nid de poule') weight = 5;
-                if (a.className === 'Fissure') weight = 2;
+                const lowerClass = a.className.toLowerCase();
+                if (lowerClass.includes('pothole') || lowerClass.includes('nid de poule')) weight = 5;
+                if (lowerClass.includes('hole') || lowerClass.includes('open')) weight = 4;
+                if (lowerClass.includes('crack') || lowerClass.includes('fissure')) weight = 2;
                 totalSeverity += weight * 10; // Base score
             });
 
@@ -74,9 +90,7 @@ export class PriorityService {
             const defectCount = segmentAnomalies.length;
 
             // Algorithm: Priority = (DefectScore * 0.7) + (TrafficScore * 0.3)
-            // DefectScore increases with count and severity.
-            const defectScore = Math.min(100, (defectCount * 20) + avgSeverity);
-
+            const defectScore = Math.min(100, (defectCount * 15) + avgSeverity);
             const priorityScore = (defectScore * 0.7) + (segment.trafficScore * 0.3);
 
             return {
@@ -86,9 +100,9 @@ export class PriorityService {
                 traffic_score: segment.trafficScore,
                 importance: segment.importance
             };
-        });
+        }).filter(r => r !== null);
 
-        // 3. Sort by Priority (Descending)
+        // 5. Sort by Priority (Descending)
         return results.sort((a, b) => b.priority_score - a.priority_score);
     }
 

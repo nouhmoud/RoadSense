@@ -7,11 +7,14 @@ from io import BytesIO
 import json
 from collections import defaultdict # NOUVEL IMPORT
 
-MINIO_ENDPOINT = "127.0.0.1:9000"  # Adapter si besoin
-MINIO_ACCESS_KEY = "minioadmin"
-MINIO_SECRET_KEY = "minioadmin"
-MINIO_BUCKET = "road-defects"
-MINIO_SECURE = False
+import os
+
+MINIO_ENDPOINT = os.getenv("MINIO_ENDPOINT", "127.0.0.1:9000")
+MINIO_PUBLIC_ENDPOINT = os.getenv("MINIO_PUBLIC_ENDPOINT", "localhost:9000")
+MINIO_ACCESS_KEY = os.getenv("MINIO_ROOT_USER", "minioadmin")
+MINIO_SECRET_KEY = os.getenv("MINIO_ROOT_PASSWORD", "minioadmin")
+MINIO_BUCKET = os.getenv("MINIO_BUCKET", "road-defects")
+MINIO_SECURE = os.getenv("MINIO_SECURE", "False").lower() == "true"
 
 def get_minio_client() -> Minio:
     # ... (fonction inchangée)
@@ -37,7 +40,7 @@ def upload_file_to_minio(client: Minio, file_bytes: bytes, filename: str, conten
         )
         
         # Comme le bucket est public (configuration passée), nous générons l'URL d'accès direct
-        url = f"http://{MINIO_ENDPOINT}/{MINIO_BUCKET}/{filename}"
+        url = f"http://{MINIO_PUBLIC_ENDPOINT}/{MINIO_BUCKET}/{filename}"
         return url
         
     except S3Error as err:
@@ -57,7 +60,7 @@ def list_all_results(bucket_name: str = MINIO_BUCKET) -> list:
             if obj.is_dir or obj.size == 0:
                 continue
 
-            url = f"http://{MINIO_ENDPOINT}/{bucket_name}/{obj.object_name}"
+            url = f"http://{MINIO_PUBLIC_ENDPOINT}/{bucket_name}/{obj.object_name}"
             
             results.append({
                 "filename": obj.object_name,

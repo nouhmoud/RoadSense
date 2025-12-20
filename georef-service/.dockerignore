@@ -1,0 +1,24 @@
+node_modules
+dist
+.venv
+venv
+venv_new
+.env
+.git
+.vscode
+.idea
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+data
+results
+storage
+
+# Recursive matches
+**/node_modules
+**/dist
+**/.venv
+**/venv
+**/venv_new
+**/__pycache__
