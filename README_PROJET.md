@@ -52,4 +52,67 @@ Le frontend a été développé sous **React** avec un design moderne (Glassmorp
 
 ---
 
+
+---
+
+## 8. API REST Documentée & Endpoints
+
+RoadSense expose plusieurs APIs RESTful pour permettre l'intégration avec d'autres systèmes. Voici la documentation technique des principaux endpoints disponibles.
+
+### 1. Detection Service (Port 8088)
+*Service responsable de l'analyse d'images via YOLOv8.*
+
+| Méthode | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/health` | Vérifie l'état du service et si le modèle est chargé. |
+| `POST` | `/detect` | Analyse une image envoyée. Retourne un JSON avec les détections et l'image annotée en Base64. Sauvegarde aussi sur MinIO. |
+| `POST` | `/detect/image` | Analyse une image et retourne directement le fichier image binaire annoté (utile pour tests visuels). |
+| `GET` | `/results` | Liste l'historique des détections stockées (images & JSON) depuis MinIO. |
+
+### 2. GeoRef Service (Port 8081)
+*Service de cartographie et Map-Matching.*
+
+| Méthode | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/health` | Statut du service. |
+| `POST` | `/georef` | Reçoit des coordonnées GPS brutes et des détections, effectue le map-matching et sauvegarde en base PostGIS. |
+| `GET` | `/georef/resolve` | **Reverse Geocoding** : Prend `lat` et `lon` en paramètres et retourne le nom de la route ou du quartier. |
+| `GET` | `/georef/history` | Récupère l'intégralité des anomalies géoréférencées stockées en base de données. |
+
+### 3. Severity Service (Port 8083)
+*Calcul de l'urgence des réparations.*
+
+| Méthode | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/health` | Statut du service. |
+| `POST` | `/severity/compute` | Calcule un score de gravité (0-100) pour une liste de détections fournie, basé sur la classe et la confiance. |
+
+### 4. Priority Service (Port 3000)
+*Gestion des priorités d'intervention (NestJS).*
+
+| Méthode | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/priority/list` | Génère la liste des interventions prioritaires en croisant gravité et importance des routes. |
+| `GET` | `/priority/reset` | Vide la table des priorités (utile pour réinitialiser la démo). |
+
+### 5. Export Service (Port 8082)
+*Export des données pour SIG externes.*
+
+| Méthode | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/health` | Statut du service. |
+| `GET` | `/export/map` | Télécharge les anomalies au format **GeoJSON** (Standard Web & QGIS). |
+| `GET` | `/export/kml` | Télécharge les anomalies au format **KML** pour visualisation dans Google Earth. |
+| `GET` | `/wfs` | Endpoint compatible **WFS 2.0** pour connexion directe depuis QGIS. |
+
+### 6. Dashboard Backend (Port 8084)
+*Agrégation de données pour le tableau de bord.*
+
+| Méthode | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/health` | Statut du service. |
+| `GET` | `/dashboard-stats` | Renvoie les statistiques globales : nombre total de défauts, répartition par type, top zones touchées. |
+
+---
+
 *Développé dans le cadre d'un projet PFA - Focus sur la modularité, l'IA et l'analyse spatiale.*
