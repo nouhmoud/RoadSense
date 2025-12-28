@@ -57,13 +57,15 @@ MINIO_ROOT_PASSWORD=minioadmin
         stage('Deploy / Start Services') {
             steps {
                 script {
-                    echo "Starting services..."
-                    // Lancement des conteneurs en mode détaché
+                    echo "Deploying services..."
                     if (isUnix()) {
+                        // Arrêt propre des conteneurs existants pour éviter les conflits
+                        sh 'docker-compose down'
                         sh 'docker-compose up -d'
-                        // Nettoyage des images inutilisées
                         sh 'docker image prune -f' 
                     } else {
+                        // Arrêt propre des conteneurs existants pour éviter les conflits
+                        bat 'docker-compose down'
                         bat 'docker-compose up -d'
                         bat 'docker image prune -f'
                     }
