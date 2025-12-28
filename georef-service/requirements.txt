@@ -6,3 +6,4 @@ geopandas
 shapely
 requests
 pandas
+py_eureka_client

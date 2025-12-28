@@ -4,6 +4,7 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 import os
 import json
+import py_eureka_client.eureka_client as eureka_client
 
 app = FastAPI(
     title="ExportSIG Service",
@@ -19,6 +20,15 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.on_event("startup")
+async def startup_event():
+    # Eureka Registration
+    await eureka_client.init_async(
+        eureka_server="http://discovery-service:8761/eureka",
+        app_name="roadsense-export",
+        instance_port=8082
+    )
 
 # Database Configuration
 DB_HOST = os.getenv("POSTGRES_HOST", "localhost")

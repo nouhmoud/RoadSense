@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException, Depends
 from starlette.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 import uvicorn
+import py_eureka_client.eureka_client as eureka_client
 
 # Imports from local app
 from app.services.dashboard_service import get_aggregated_stats
@@ -29,6 +30,13 @@ async def startup_event():
         init_db()
     except Exception as e:
         print(f"CRITICAL: PostGIS initialization failed. {e}")
+    
+    # Eureka Registration
+    await eureka_client.init_async(
+        eureka_server="http://discovery-service:8761/eureka",
+        app_name="roadsense-dashboard-be",
+        instance_port=8084
+    )
 
 @app.get("/health")
 def health_check():

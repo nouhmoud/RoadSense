@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from starlette.middleware.cors import CORSMiddleware
 from typing import List, Dict, Any
 import uvicorn
+import py_eureka_client.eureka_client as eureka_client
 
 # Imports from local app
 from app.services.severity_service import calculate_severity_score
@@ -24,6 +25,15 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.on_event("startup")
+async def startup_event():
+    # Eureka Registration
+    await eureka_client.init_async(
+        eureka_server="http://discovery-service:8761/eureka",
+        app_name="roadsense-severity",
+        instance_port=8083
+    )
 
 @app.get("/health")
 def health_check():

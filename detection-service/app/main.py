@@ -15,6 +15,9 @@ from app.schemas.detection_schema import DetectionResponse, HealthCheck
 from minio.error import S3Error
 from app.services.minio_service import get_minio_client, upload_file_to_minio, list_all_results
 
+# Import Eureka
+import py_eureka_client.eureka_client as eureka_client
+
 
 # --- FONCTION UTILITAIRE : Nettoyage du nom de fichier ---
 def sanitize_filename(filename: str) -> str:
@@ -160,5 +163,11 @@ async def startup_event():
     """ Charge le modèle YOLOv8 au démarrage. """
     try:
         load_yolo_model()
+        # Eureka Registration
+        await eureka_client.init_async(
+            eureka_server="http://discovery-service:8761/eureka",
+            app_name="roadsense-detection",
+            instance_port=8088
+        )
     except Exception as e:
         print(f"ÉCHEC CRITIQUE: Le modèle n'a pas pu être chargé. {e}")

@@ -7,6 +7,7 @@ from app.schemas.georef_schema import GeorefRequest, GeorefResponse, Georeferenc
 from app.services.georef_service import perform_georeferencing, get_all_georeferenced_anomalies
 from app.db.db_config import init_db, get_db
 from sqlalchemy.orm import Session
+import py_eureka_client.eureka_client as eureka_client
 
 app = FastAPI(
     title="GeoRef Service",
@@ -30,6 +31,13 @@ async def startup_event():
         init_db()
     except Exception as e:
         print(f"CRITICAL: PostGIS initialization failed. {e}")
+    
+    # Eureka Registration
+    await eureka_client.init_async(
+        eureka_server="http://discovery-service:8761/eureka",
+        app_name="roadsense-georef",
+        instance_port=8081
+    )
 
 @app.get("/health")
 def health_check():

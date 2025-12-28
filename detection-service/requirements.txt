@@ -12,3 +12,4 @@ shapely
 scikit-learn
 xgboost
 pandas
+py_eureka_client

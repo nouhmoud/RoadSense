@@ -1,5 +1,6 @@
 fastapi
 uvicorn
+py_eureka_client
 pandas
 numpy
 xgboost

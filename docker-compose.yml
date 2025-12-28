@@ -31,6 +31,13 @@ services:
     volumes:
       - miniodata:/data
 
+  # --- Service Discovery (Eureka) ---
+  discovery-service:
+    image: steeltoeoss/eureka-server
+    container_name: roadsense-eureka
+    ports:
+      - "8761:8761"
+
   # --- Microservices ---
   detection-service:
     build: ./detection-service
