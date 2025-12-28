@@ -59,13 +59,17 @@ MINIO_ROOT_PASSWORD=minioadmin
                 script {
                     echo "Deploying services..."
                     if (isUnix()) {
-                        // Arrêt propre des conteneurs existants pour éviter les conflits
-                        sh 'docker-compose down'
+                        // Nettoyage forcé des conteneurs par nom pour éviter les conflits de noms fixes
+                        // Le '|| true' permet de ne pas faire échouer le build si les conteneurs n'existent pas
+                        sh 'docker rm -f roadsense-db roadsense-minio roadsense-detection roadsense-georef roadsense-severity roadsense-dashboard-be roadsense-export roadsense-priority roadsense-frontend || true'
+                        
                         sh 'docker-compose up -d'
                         sh 'docker image prune -f' 
                     } else {
-                        // Arrêt propre des conteneurs existants pour éviter les conflits
-                        bat 'docker-compose down'
+                        // Nettoyage forcé des conteneurs par nom (Windows version)
+                        // 'call' est utilisé pour éviter que l'échec de la commande n'arrête le script si les conteneurs n'existent pas
+                        bat 'docker rm -f roadsense-db roadsense-minio roadsense-detection roadsense-georef roadsense-severity roadsense-dashboard-be roadsense-export roadsense-priority roadsense-frontend || exit 0'
+                        
                         bat 'docker-compose up -d'
                         bat 'docker image prune -f'
                     }
