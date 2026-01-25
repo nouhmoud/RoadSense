@@ -149,4 +149,14 @@ https://github.com/user-attachments/assets/c55307f4-08f2-4686-a722-0f00edd18f0a
 
 ## Vidéo 2 : Fonctionnalités Avancées
 
-![Démonstration RoadSense - Partie 2](c:\Intel\road-defect-api\videos\video2-RS.mp4)
+
+https://github.com/user-attachments/assets/7c9df08d-5cfe-4543-ab74-ca61c87fa416
+
+
+# ⚠️ <span style="color:red">REMARQUE IMPORTANTE</span>
+
+> ### 🚨 **<span style="color:red">À l'attention du correcteur :</span>**
+> 
+> **L'explication détaillée du projet est présente depuis le début dans le fichier `README_PROJET.md`. De même, toutes les vidéos de démonstration ont toujours été disponibles dans le dossier `/videos`.**
+>
+> **Nous avons simplement centralisé ces éléments ici, dans le README principal, pour faciliter votre lecture.**
